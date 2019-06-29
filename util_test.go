@@ -150,10 +150,24 @@ func TestCheckTarget(t *testing.T) {
 	tests := []data{
 		{
 			in{
-				map[string]int{"/1": 0, "/1/2": 1},
-				[]string{"/1", "/1/2", "/1/2/3", "/1/2/a", "/1/2/3/4", "/"},
+				map[string]int{"/1": 0},
+				[]string{"/", "/1", "/1/2"},
 			},
-			ex{true, true, true, true, false, false},
+			ex{false, true, false},
+		},
+		{
+			in{
+				map[string]int{"/1/2": 1},
+				[]string{"/1", "/1/2", "/1/2/3", "/1/2/3/4"},
+			},
+			ex{false, true, true, false},
+		},
+		{
+			in{
+				map[string]int{"/1": -1},
+				[]string{"/", "/1", "/1/2", "/1/2/34/5/6/7/8/9/10"},
+			},
+			ex{false, true, true, true},
 		},
 	}
 	for i, test := range tests {

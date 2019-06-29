@@ -116,7 +116,7 @@ func checkTarget(path string) bool {
 	for i := 0; true; i++ {
 		depth, ok := depthMap[path]
 		if ok {
-			if depth >= i {
+			if depth >= i || depth < 0 {
 				return true
 			}
 			return false
