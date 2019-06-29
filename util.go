@@ -45,20 +45,14 @@ func parseEvents(eventsString string) (int, error) {
 	return eventFlag, nil
 }
 
-func isDirExist(directory string) (bool, error) {
+func isDir(directory string) bool {
 	fInfo, err := os.Stat(directory)
-	if err != nil {
-		if os.IsExist(err) == false {
-			return false, nil
-		} else {
-			return false, err
-		}
-	} else {
-		if fInfo.IsDir() == false {
-			return false, nil
+	if err == nil {
+		if fInfo.IsDir() {
+			return true
 		}
 	}
-	return true, nil
+	return false
 }
 
 func appendFile(outputPath, outputString string) error {
@@ -82,23 +76,21 @@ func addRecursive(name string, depth, maxdepth int, watcher *fsnotify.Watcher, p
 			return
 		}
 	}
+
 	errorWrap := func(err error) error {
 		return errors.Wrap(err, "cause in addRecursive")
 	}
 
 	dirname := name
-	ok, err := isDirExist(dirname)
-	if err != nil {
-		logPrint(errorWrap(err))
-	}
-	if !ok {
+	if ok := isDir(dirname); !ok {
 		return
 	}
-	err = watcher.Add(dirname)
-	if err != nil {
+
+	if err := watcher.Add(dirname); err != nil {
 		logPrint(errorWrap(err))
 		return
 	}
+
 	fileinfos, err := ioutil.ReadDir(dirname)
 	if err != nil {
 		logPrint(errorWrap(err))
@@ -109,7 +101,9 @@ func addRecursive(name string, depth, maxdepth int, watcher *fsnotify.Watcher, p
 		wg.Add(1)
 		go addRecursive(filepath.Join(dirname, fi.Name()), depth+1, maxdepth, watcher, wg)
 	}
+
 	wg.Wait()
+
 }
 
 func checkTarget(path string) bool {

@@ -3,7 +3,6 @@ package filemonitor
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"path/filepath"
 	"strconv"
 	"sync"
@@ -126,10 +125,7 @@ func watch(outputPath string, watcher *fsnotify.Watcher, done chan bool) {
 				// event.Nameをさかのぼり，depthが設定されたpathを探す
 				// 見つけたら，さかのぼった数がdepthに見合っているか確認する
 				// 見合っていれば監視対象に加える
-				ok, err := isDirExist(event.Name)
-				if err != nil {
-					log.Println("error: ", err)
-				}
+				ok := isDir(event.Name)
 				if ok {
 					if ok := checkTarget(event.Name); ok {
 						watcher.Add(event.Name)
