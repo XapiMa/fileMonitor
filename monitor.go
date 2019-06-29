@@ -20,41 +20,6 @@ type target struct {
 
 var depthMap = make(map[string]int)
 
-// FileMonitor is monitoring file system
-func FileMonitor(configPath, outputPath string, maxParallelNum int) error {
-	errorWrap := func(err error) error {
-		return errors.Wrap(err, "cause in FileMonitor")
-	}
-
-	targets, err := parseConfigFile(configPath)
-	if err != nil {
-		return errorWrap(err)
-	}
-
-	watcher, err := fsnotify.NewWatcher()
-	if err != nil {
-		return errorWrap(err)
-	}
-	defer watcher.Close()
-	done := make(chan bool)
-
-	go watch(outputPath, watcher, done)
-
-	// add all target parent dir to watcher
-	wg := &sync.WaitGroup{}
-	for _, item := range targets {
-		dirname := filepath.Dir(item.path)
-		wg.Add(1)
-		go addRecursive(dirname, 0, item.depth, watcher, wg)
-	}
-	wg.Wait()
-
-	<-done
-
-	return nil
-
-}
-
 func parseConfigFile(configPath string) ([]target, error) {
 	errorWrap := func(err error) error {
 		return errors.Wrap(err, "cause in parseConfigFile")
@@ -95,6 +60,41 @@ func parseConfigFile(configPath string) ([]target, error) {
 		depthMap[tmpItem.path] = tmpItem.depth
 	}
 	return targets, nil
+}
+
+// FileMonitor is monitoring file system
+func FileMonitor(configPath, outputPath string, maxParallelNum int) error {
+	errorWrap := func(err error) error {
+		return errors.Wrap(err, "cause in FileMonitor")
+	}
+
+	targets, err := parseConfigFile(configPath)
+	if err != nil {
+		return errorWrap(err)
+	}
+
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		return errorWrap(err)
+	}
+	defer watcher.Close()
+	done := make(chan bool)
+
+	go watch(outputPath, watcher, done)
+
+	// add all target parent dir to watcher
+	wg := &sync.WaitGroup{}
+	for _, item := range targets {
+		dirname := filepath.Dir(item.path)
+		wg.Add(1)
+		go addRecursive(dirname, 0, item.depth, watcher, wg)
+	}
+	wg.Wait()
+
+	<-done
+
+	return nil
+
 }
 
 func watch(outputPath string, watcher *fsnotify.Watcher, done chan bool) {
