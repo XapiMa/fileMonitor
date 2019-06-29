@@ -66,3 +66,14 @@ Usage of fileMonitor:
     -t string
             path to config.yml (default "In the same directory as the executable file")
 ```
+
+
+## Problem
+The following command can not be judged correctly
+- `mkdir -p a/b/c`
+- `mkdir a a/b a/b/c`
+- `rm -rf a` n the directory structure `a/b/c`
+    - This case judged as follows
+        - remove a/b/c
+        - modify a/b
+        - modify a/b/c
