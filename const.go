@@ -2,12 +2,12 @@ package filemonitor
 
 const (
 	createFlag = 1 << iota
-	removeFlag
+	deleteFlag
 	renameFlag
 	writeFlag
 	permissionFlag
 	createSentence     = "create"
-	removeSentence     = "remove"
+	deleteSentence     = "delete"
 	renameSentence     = "rename"
 	writeSentence      = "write"
 	permissionSentence = "permission"

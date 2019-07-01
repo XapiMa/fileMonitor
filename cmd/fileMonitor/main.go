@@ -43,7 +43,11 @@ func main() {
 	if !exists(*configPath) {
 		logFatal(fmt.Errorf("Error: fileMonitor config.yml is not exist"))
 	}
-	if err := filemonitor.FileMonitor(*configPath, *outputPath, *maxParallelNum); err != nil {
+	monitor, err := filemonitor.NewMonitor()
+	if err != nil {
+		logFatal(errors.Wrap(err, "cause in main"))
+	}
+	if err := monitor.FileMonitor(*configPath, *outputPath, *maxParallelNum); err != nil {
 		logFatal(errors.Wrap(err, "cause in main"))
 	}
 

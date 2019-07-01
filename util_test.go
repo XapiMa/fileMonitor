@@ -20,9 +20,9 @@ func TestParseEvents(t *testing.T) {
 	tests := []data{
 		data{"", 0},
 		data{"create", createFlag},
-		data{"create|remove", createFlag | removeFlag},
+		data{"create|delete", createFlag | deleteFlag},
 		data{"rename|write|permission", renameFlag | writeFlag | permissionFlag},
-		data{"create|remove|rename|write|permission", createFlag | removeFlag | renameFlag | writeFlag | permissionFlag},
+		data{"create|delete|rename|write|permission", createFlag | deleteFlag | renameFlag | writeFlag | permissionFlag},
 	}
 	for i, test := range tests {
 		result, err := parseEvents(test.input)
@@ -49,11 +49,7 @@ func callRecursive(name string, depth, maxdepth int, targetDirs *[]string, pWg *
 
 	dirname := name
 	fmt.Printf("dirname : %s\n", dirname)
-	ok, err := isDirExist(dirname)
-	if err != nil {
-		fmt.Print(errorWrap(err))
-	}
-	if !ok {
+	if ok := isDir(dirname); !ok {
 		fmt.Printf("%s is not exist\n", dirname)
 		return
 	}
@@ -137,47 +133,56 @@ func TestCallRecursive(t *testing.T) {
 	}
 }
 
-func TestCheckTarget(t *testing.T) {
-	type in struct {
-		dMap      map[string]int
-		checkPath []string
-	}
-	type ex []bool
-	type data struct {
-		input    in
-		expected ex
-	}
-	tests := []data{
-		{
-			in{
-				map[string]int{"/1": 0},
-				[]string{"/", "/1", "/1/2"},
-			},
-			ex{false, true, false},
-		},
-		{
-			in{
-				map[string]int{"/1/2": 1},
-				[]string{"/1", "/1/2", "/1/2/3", "/1/2/3/4"},
-			},
-			ex{false, true, true, false},
-		},
-		{
-			in{
-				map[string]int{"/1": -1},
-				[]string{"/", "/1", "/1/2", "/1/2/34/5/6/7/8/9/10"},
-			},
-			ex{false, true, true, true},
-		},
-	}
-	for i, test := range tests {
-		depthMap = test.input.dMap
-		for j, path := range test.input.checkPath {
-			ok := checkTarget(path)
-			if ok != test.expected[j] {
-				t.Errorf("[CheckTarget] case %d ,%dth path's ok is %v but expected %v", i, j, ok, test.expected[j])
-			}
-		}
-	}
+// func TestCheckTarget(t *testing.T) {
+// 	type in struct {
+// 		dMap      map[string]int
+// 		check []ta
 
-}
+// 	}
+// 	type ta struct{
+// 		target string
+// 		event int
+// 	}
+// 	type ex []bool
+// 	type data struct {
+// 		input    in
+// 		expected ex
+// 	}
+// 	tests := []data{
+// 		{
+// 			in{
+// 				map[string]int{"/1": 0},
+// 				[]check{ta{"/",, "/1", "/1/2"},
+// 			},
+// 			ex{false, true, false},
+// 		},
+// 		{
+// 			in{
+// 				map[string]int{"/1/2": 1},
+// 				[]string{"/1", "/1/2", "/1/2/3", "/1/2/3/4"},
+// 			},
+// 			ex{false, true, true, false},
+// 		},
+// 		{
+// 			in{
+// 				map[string]int{"/1": -1, "/1/2/3": 0},
+// 				[]string{"/", "/1", "/1/2", "/1/2/34/5/6/7/8/9/10"},
+// 			},
+// 			ex{false, true, true, true},
+// 		},
+// 	}
+// 	for i, test := range tests {
+// 		monitor, err := NewMonitor()
+// 		if err != nil {
+// 			t.Errorf("[CheckTarget] case %d : %s", i, err)
+// 		}
+// 		monitor.depthMap = test.input.dMap
+// 		for j, path := range test.input.checkPath {
+// 			ok := monitor.checkTarget(path)
+// 			if ok != test.expected[j] {
+// 				t.Errorf("[CheckTarget] case %d ,%dth path's ok is %v but expected %v", i, j, ok, test.expected[j])
+// 			}
+// 		}
+// 	}
+
+// }

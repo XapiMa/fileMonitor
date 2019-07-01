@@ -10,7 +10,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/fsnotify/fsnotify"
 	"github.com/go-yaml/yaml"
 	"github.com/pkg/errors"
 )
@@ -29,8 +28,8 @@ func parseEvents(eventsString string) (int, error) {
 		switch event {
 		case createSentence:
 			eventFlag |= createFlag
-		case removeSentence:
-			eventFlag |= removeFlag
+		case deleteSentence:
+			eventFlag |= deleteFlag
 		case renameSentence:
 			eventFlag |= renameFlag
 		case writeSentence:
@@ -55,12 +54,12 @@ func isDir(directory string) bool {
 	return false
 }
 
-func appendFile(outputPath, outputString string) error {
+func (monitor *Monitor) appendFile(outputString string) error {
 	outputString = fmt.Sprintf("%s\n", outputString)
-	if outputPath == "" {
+	if monitor.outputPath == "" {
 		fmt.Printf("%s", outputString)
 	} else {
-		file, err := os.OpenFile(outputPath, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
+		file, err := os.OpenFile(monitor.outputPath, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
 		if err != nil {
 			logPrint(err)
 			return err
@@ -71,7 +70,7 @@ func appendFile(outputPath, outputString string) error {
 	return nil
 }
 
-func addRecursive(name string, depth, maxdepth int, watcher *fsnotify.Watcher, pWg *sync.WaitGroup) {
+func (monitor *Monitor) addRecursive(name string, depth, maxdepth int, pWg *sync.WaitGroup) {
 	defer pWg.Done()
 	if maxdepth >= 0 {
 		if depth > maxdepth {
@@ -88,7 +87,7 @@ func addRecursive(name string, depth, maxdepth int, watcher *fsnotify.Watcher, p
 		return
 	}
 
-	if err := watcher.Add(dirname); err != nil {
+	if err := monitor.watcher.Add(dirname); err != nil {
 		logPrint(errorWrap(err))
 		return
 	}
@@ -101,21 +100,39 @@ func addRecursive(name string, depth, maxdepth int, watcher *fsnotify.Watcher, p
 	wg := &sync.WaitGroup{}
 	for _, fi := range fileinfos {
 		wg.Add(1)
-		go addRecursive(filepath.Join(dirname, fi.Name()), depth+1, maxdepth, watcher, wg)
+		go monitor.addRecursive(filepath.Join(dirname, fi.Name()), depth+1, maxdepth, wg)
 	}
 
 	wg.Wait()
 
 }
 
-func checkTarget(path string) bool {
+func (monitor *Monitor) checkTargetPath(path string) bool {
 	for i := 0; true; i++ {
-		depth, ok := depthMap[path]
+		depth, ok := monitor.depthMap[path]
 		if ok {
 			if depth >= i || depth < 0 {
 				return true
 			}
+		}
+		dir, file := filepath.Split(path)
+		dir = filepath.Clean(dir)
+		if file == "" {
 			return false
+		}
+		path = dir
+	}
+	return true
+}
+
+func (monitor *Monitor) checkTarget(path string, eventType int) bool {
+	path = filepath.Clean(path)
+	for i := 0; true; i++ {
+		depth, ok := monitor.depthMap[path]
+		if ok {
+			if (depth >= i || depth < 0) && monitor.targets[path].events&eventType != 0 {
+				return true
+			}
 		}
 		dir, file := filepath.Split(path)
 		dir = filepath.Clean(dir)
