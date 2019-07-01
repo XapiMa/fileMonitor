@@ -12,7 +12,7 @@ or
 
 ```
 $ git clone https://github.com/XapiMa/fileMonitor.git
-$ go build cmd/fileMonitor/main.go
+$ go build ./cmd/fileMonitor
 ```
 
 
