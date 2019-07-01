@@ -56,7 +56,7 @@ func isDir(directory string) bool {
 }
 
 func appendFile(outputPath, outputString string) error {
-	outputString = fmt.Sprintf("%s %s\n", time.Now().Format("2006/01/02 15:04:05"), outputString)
+	outputString = fmt.Sprintf("%s\n", outputString)
 	if outputPath == "" {
 		fmt.Printf("%s", outputString)
 	} else {

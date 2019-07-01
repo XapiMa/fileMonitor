@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/pkg/errors"
@@ -81,7 +82,7 @@ func FileMonitor(configPath, outputPath string, maxParallelNum int) error {
 
 	go watch(outputPath, watcher, done)
 
-	// add all target parent dir to watcher
+	// add all parent dir of target to watcher
 	wg := &sync.WaitGroup{}
 	for _, item := range targets {
 		dirname := filepath.Dir(item.path)
@@ -99,10 +100,13 @@ func watch(outputPath string, watcher *fsnotify.Watcher, done chan bool) {
 	errorWrap := func(err error) error {
 		return errors.Wrap(err, "cause in watch")
 	}
+	prevString := ""
 	for {
+		outputString := ""
 		select {
 		case event := <-watcher.Events:
-			// event.Nameをたどったうちの何処かがpath内に含まれているか確認
+			timeString := time.Now().Format("2006/01/02 15:04:05")
+			// event.Nameをたどってtargetのpath内に含まれているか確認
 			// 含まれていた場合，さかのぼった回数がdepthに見合っているか確認
 			// 見合っていなければ無視
 			// 例) path=/etc/passwd,depth=0 の場合
@@ -117,17 +121,22 @@ func watch(outputPath string, watcher *fsnotify.Watcher, done chan bool) {
 			}
 			switch {
 			case event.Op&fsnotify.Write == fsnotify.Write:
-				go appendFile(outputPath, "Modified : "+event.Name)
+				outputString = timeString + " WRITE: " + event.Name
 			case event.Op&fsnotify.Create == fsnotify.Create:
-				go appendFile(outputPath, "Created: "+event.Name)
+				outputString = timeString + " CREATE: " + event.Name
 				go addDir(event.Name, watcher)
 			case event.Op&fsnotify.Remove == fsnotify.Remove:
-				go appendFile(outputPath, "Removed: "+event.Name)
+				outputString = timeString + " DELETE: " + event.Name
 			case event.Op&fsnotify.Rename == fsnotify.Rename:
-				go appendFile(outputPath, "Renamed: "+event.Name)
+				outputString = timeString + " RENAME : " + event.Name
 			case event.Op&fsnotify.Chmod == fsnotify.Chmod:
-				go appendFile(outputPath, "Permission: "+event.Name)
+				outputString = timeString + " PERMISSION : " + event.Name
 			}
+			if prevString != outputString {
+				appendFile(outputPath, outputString)
+			}
+			prevString = outputString
+
 		case err := <-watcher.Errors:
 			logPrint(errorWrap(err))
 			done <- true
