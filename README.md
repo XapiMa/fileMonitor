@@ -69,7 +69,7 @@ Usage of fileMonitor:
 
 
 ## Problem
-The following command can not be judged correctly
+In darwin the following command can not be judged correctly
 - `mkdir -p a/b/c`
 - `mkdir a a/b a/b/c`
 - `rm -rf a` n the directory structure `a/b/c`
