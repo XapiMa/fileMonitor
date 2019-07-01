@@ -56,11 +56,13 @@ func isDir(directory string) bool {
 }
 
 func appendFile(outputPath, outputString string) error {
+	outputString = fmt.Sprintf("%s %s\n", time.Now().Format("2006/01/02 15:04:05"), outputString)
 	if outputPath == "" {
 		fmt.Printf("%s", outputString)
 	} else {
 		file, err := os.OpenFile(outputPath, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
 		if err != nil {
+			logPrint(err)
 			return err
 		}
 		file.Write(([]byte)(outputString))

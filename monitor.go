@@ -89,7 +89,6 @@ func FileMonitor(configPath, outputPath string, maxParallelNum int) error {
 		go addRecursive(dirname, 0, item.depth, watcher, wg)
 	}
 	wg.Wait()
-
 	<-done
 
 	return nil
@@ -116,35 +115,34 @@ func watch(outputPath string, watcher *fsnotify.Watcher, done chan bool) {
 			if ok := checkTarget(event.Name); !ok {
 				continue
 			}
-			outputString := ""
 			switch {
 			case event.Op&fsnotify.Write == fsnotify.Write:
-				outputString += "Modified : " + event.Name
+				go appendFile(outputPath, "Modified : "+event.Name)
 			case event.Op&fsnotify.Create == fsnotify.Create:
-				outputString += "Created: " + event.Name
-				// event.Nameをさかのぼり，depthが設定されたpathを探す
-				// 見つけたら，さかのぼった数がdepthに見合っているか確認する
-				// 見合っていれば監視対象に加える
-				ok := isDir(event.Name)
-				if ok {
-					if ok := checkTarget(event.Name); ok {
-						watcher.Add(event.Name)
-					}
-				}
+				go appendFile(outputPath, "Created: "+event.Name)
+				go addDir(event.Name, watcher)
 			case event.Op&fsnotify.Remove == fsnotify.Remove:
-				outputString += "Removed: " + event.Name
+				go appendFile(outputPath, "Removed: "+event.Name)
 			case event.Op&fsnotify.Rename == fsnotify.Rename:
-				outputString += "Renamed: " + event.Name
+				go appendFile(outputPath, "Renamed: "+event.Name)
 			case event.Op&fsnotify.Chmod == fsnotify.Chmod:
-				outputString += "Permission: " + event.Name
+				go appendFile(outputPath, "Permission: "+event.Name)
 			}
-			if err := appendFile(outputPath, outputString+"\n"); err != nil {
-				logPrint(errorWrap(err))
-			}
-
 		case err := <-watcher.Errors:
 			logPrint(errorWrap(err))
 			done <- true
+		}
+	}
+}
+
+func addDir(filename string, watcher *fsnotify.Watcher) {
+	// event.Nameをさかのぼり，depthが設定されたpathを探す
+	// 見つけたら，さかのぼった数がdepthに見合っているか確認する
+	// 見合っていれば監視対象に加える
+	ok := isDir(filename)
+	if ok {
+		if ok := checkTarget(filename); ok {
+			watcher.Add(filename)
 		}
 	}
 
