@@ -127,9 +127,9 @@ func checkTarget(path string) bool {
 	return true
 }
 
-func readOnSliceMap(fileBuffer []byte) ([]map[string]string, error) {
+func ymlUnmarshal(fileBuffer []byte) ([]map[string]string, error) {
 	errorWrap := func(err error) error {
-		return errors.Wrap(err, "cause in ReadOnSliceMap")
+		return errors.Wrap(err, "cause in ymlUnmarshal")
 	}
 	data := make([]map[string]string, 1000)
 	err := yaml.Unmarshal(fileBuffer, &data)

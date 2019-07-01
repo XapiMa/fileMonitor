@@ -31,7 +31,7 @@ func parseConfigFile(configPath string) ([]target, error) {
 		return targets, errorWrap(err)
 	}
 
-	data, err := readOnSliceMap(buf)
+	data, err := ymlUnmarshal(buf)
 	if err != nil {
 		return targets, errorWrap(err)
 	}
