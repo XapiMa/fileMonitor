@@ -5,7 +5,7 @@ Notifies when the specified file has been created, removed, renamed, rewritten, 
 
 ## Installation
 ```
-$ go get github.com/XapiMa/fileMonitor
+$ go get github.com/XapiMa/fileMonitor/cmd/fileMonitor
 ```
 
 or
