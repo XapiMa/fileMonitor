@@ -47,6 +47,8 @@ func main() {
 	if err != nil {
 		logFatal(errors.Wrap(err, "cause in main"))
 	}
+	defer monitor.Close()
+
 	if err := monitor.FileMonitor(*configPath, *outputPath, *maxParallelNum); err != nil {
 		logFatal(errors.Wrap(err, "cause in main"))
 	}

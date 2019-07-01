@@ -188,3 +188,8 @@ func (monitor *Monitor) addDir(filename string) {
 	}
 
 }
+
+// Close removes all watches and closes the events channel.
+func (monitor *Monitor) Close() {
+	monitor.watcher.Close()
+}
