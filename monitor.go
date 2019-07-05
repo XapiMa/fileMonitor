@@ -53,8 +53,6 @@ func NewMonitor() (*Monitor, error) {
 	return m, nil
 }
 
-// defer watcher.Close()
-
 func (monitor *Monitor) parseConfigFile(configPath string) error {
 	errorWrap := func(err error) error {
 		return errors.Wrap(err, "cause in parseConfigFile")
