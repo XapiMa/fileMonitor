@@ -1,4 +1,4 @@
-package filemonitor
+package fmonitor
 
 const (
 	createFlag = 1 << iota
