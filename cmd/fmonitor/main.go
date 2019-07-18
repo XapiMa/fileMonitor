@@ -49,7 +49,7 @@ func main() {
 	}
 	defer monitor.Close()
 
-	if err := monitor.fmonitor(*configPath, *outputPath, *maxParallelNum); err != nil {
+	if err := monitor.Fmonitor(*configPath, *outputPath, *maxParallelNum); err != nil {
 		logFatal(errors.Wrap(err, "cause in main"))
 	}
 
