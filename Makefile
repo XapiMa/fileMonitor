@@ -1,7 +1,7 @@
-all: fileMonitor fileMonitor.exe
+all: fmonitor fmonitor.exe
 
-fileMonitor:
-	GOOS=linux go build -ldflags '-w -s -extldflags "-static"' -o $@ ./cmd/fileMonitor
+fmonitor:
+	GOOS=linux go build -ldflags '-w -s -extldflags "-static"' -o $@ ./cmd/fmonitor
 
-fileMonitor.exe:
-	GOOS=windows go build -ldflags '-w -s -extldflags "-static"' -o $@ ./cmd/fileMonitor
+fmonitor.exe:
+	GOOS=windows go build -ldflags '-w -s -extldflags "-static"' -o $@ ./cmd/fmonitor

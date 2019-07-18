@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/xapima/filemonitor"
+	"github.com/xapima/fmonitor"
 )
 
 func exists(filename string) bool {
@@ -28,7 +28,7 @@ func main() {
 		logFatal(errors.Wrap(err, "cause in main: "))
 	}
 
-	log.SetPrefix("fileMonitor: ")
+	log.SetPrefix("fmonitor: ")
 	log.SetFlags(0)
 	configPath := flag.String("t", filepath.Join(filepath.Dir(execPath), "config.yml"), "path to config.yml")
 	outputPath := flag.String("o", "", "output file path. If not set, it will be output to standard output")
@@ -41,15 +41,15 @@ func main() {
 	// }
 
 	if !exists(*configPath) {
-		logFatal(fmt.Errorf("Error: fileMonitor config.yml is not exist"))
+		logFatal(fmt.Errorf("Error: fmonitor config.yml is not exist"))
 	}
-	monitor, err := filemonitor.NewMonitor()
+	monitor, err := fmonitor.NewMonitor()
 	if err != nil {
 		logFatal(errors.Wrap(err, "cause in main"))
 	}
 	defer monitor.Close()
 
-	if err := monitor.FileMonitor(*configPath, *outputPath, *maxParallelNum); err != nil {
+	if err := monitor.fmonitor(*configPath, *outputPath, *maxParallelNum); err != nil {
 		logFatal(errors.Wrap(err, "cause in main"))
 	}
 

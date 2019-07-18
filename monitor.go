@@ -1,4 +1,4 @@
-package filemonitor
+package fmonitor
 
 import (
 	"fmt"
@@ -94,10 +94,10 @@ func (monitor *Monitor) parseConfigFile(configPath string) error {
 
 }
 
-// FileMonitor is monitoring file system
-func (monitor *Monitor) FileMonitor(configPath, outputPath string, maxParallelNum int) error {
+// fmonitor is monitoring file system
+func (monitor *Monitor) fmonitor(configPath, outputPath string, maxParallelNum int) error {
 	errorWrap := func(err error) error {
-		return errors.Wrap(err, "cause in FileMonitor")
+		return errors.Wrap(err, "cause in fmonitor")
 	}
 	monitor.configPath = configPath
 	err := monitor.parseConfigFile(configPath)

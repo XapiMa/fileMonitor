@@ -1,4 +1,4 @@
-package filemonitor
+package fmonitor
 
 import (
 	"fmt"

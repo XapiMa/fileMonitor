@@ -1,18 +1,18 @@
-# fileMonitor
+# fmonitor
 This tool monitors changes to monitored paths.  
 Notifies when the specified file has been created, removed, renamed, rewritten, or changed in permission.
 
 
 ## Installation
 ```
-$ go get github.com/XapiMa/fileMonitor/cmd/fileMonitor
+$ go get github.com/XapiMa/fmonitor/cmd/fmonitor
 ```
 
 or
 
 ```
-$ git clone https://github.com/XapiMa/fileMonitor.git
-$ go build ./fileMonitor/cmd/fileMonitor
+$ git clone https://github.com/XapiMa/fmonitor.git
+$ go build ./fmonitor/cmd/fmonitor
 ```
 
 
@@ -51,7 +51,7 @@ ex.
 ## Execution
 
 ```
-$ fileMonitor -t path/to/config.yml
+$ fmonitor -t path/to/config.yml
 ```
 
 If you want to write the result to a file:
@@ -60,7 +60,7 @@ $ webStatusChecker -t path/to/config.yml -o path/to/output/file
 ```
 
 ```
-Usage of fileMonitor:
+Usage of fmonitor:
     -o string
             output file path. If not set, it will be output to standard output
     -t string
