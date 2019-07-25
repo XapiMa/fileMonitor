@@ -48,7 +48,7 @@ func NewMonitor() (*Monitor, error) {
 		deleteFlag:     "DELETE",
 		writeFlag:      "WRITE",
 		renameFlag:     "RENAME",
-		permissionFlag: "PERNISSION",
+		permissionFlag: "PERMISSION",
 	}
 	return m, nil
 }
