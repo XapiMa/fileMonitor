@@ -56,7 +56,7 @@ $ fmonitor -t path/to/config.yml
 
 If you want to write the result to a file:
 ```
-$ webStatusChecker -t path/to/config.yml -o path/to/output/file
+$ fmonitor -t path/to/config.yml -o /path/to/output/file
 ```
 
 ```
